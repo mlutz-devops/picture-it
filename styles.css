@@ -1,0 +1,96 @@
+@font-face {
+  font-family: "doodle";
+  src: url("./font/DarumadropOne-Regular.ttf");
+}
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "doodle";
+  /* outline: 1px solid red; */
+}
+.content {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  justify-content: center;
+  align-items: center;
+  gap: 5vh;
+  background-image: url("./images/paper-background.avif");
+}
+#grid {
+  border: 2px solid black;
+  display: flex;
+  width: 40vw;
+  height: 40vw;
+  flex-shrink: 0;
+  box-shadow: -1px 1px 14px 0px rgba(0, 0, 0, 0.62);
+}
+#color-picker {
+  height: 80px;
+  width: 80px;
+  border: none;
+  background-color: inherit;
+}
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+.title {
+  font-size: 4rem;
+}
+.square {
+  /* border: 1px solid black; */
+  background-color: #f1f1f1;
+  flex-grow: 100;
+}
+.row {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 100;
+}
+.active {
+  background-color: black;
+}
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background-color: rgb(104, 95, 95);
+  padding: 3rem 10rem;
+  border-radius: 35px;
+  gap: 3rem;
+  box-shadow: -1px 1px 14px 0px rgba(0, 0, 0, 0.62);
+}
+.controls {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  background-color: grey;
+  padding: 4rem;
+  border-radius: 35px;
+}
+.button {
+  border: 1px solid black;
+  width: 10rem;
+  height: 3rem;
+  font-size: 1.5rem;
+  border-radius: 10px;
+  padding-bottom: 5px;
+  background-color: #f1f1f1;
+  text-align: center;
+}
+.active-btn {
+  background-color: rgb(100, 209, 239);
+}
+#file-picker {
+  display: none;
+}
