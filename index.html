@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Picture It!</title>
     <link rel="stylesheet" href="./styles.css" />
-    <script src="script.js" defer></script>
+    <script type="module" src="script.js" defer></script>
   </head>
   <body>
     <div class="content">
@@ -14,11 +14,11 @@
       <main class="main">
         <div class="controls">
           <input type="color" id="color-picker" />
-          <button class="button" id="pen">Pen</button>
+          <button class="button active-btn" id="pen">Pen</button>
           <button class="button" id="eraser">Eraser</button>
           <button class="button" id="clear">Clear</button>
-          <label for="file-picker" class="button">Choose File</label>
-          <input type="file" id="file-picker" />
+          <button class="button" id="time">Toggle Time</button>
+          <button class="button" id="weather">Get Weather</button>
         </div>
         <div id="grid"></div>
       </main>

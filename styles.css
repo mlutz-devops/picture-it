@@ -22,8 +22,8 @@
 #grid {
   border: 2px solid black;
   display: flex;
-  width: 40vw;
-  height: 40vw;
+  width: 60vw;
+  height: 30vw;
   flex-shrink: 0;
   box-shadow: -1px 1px 14px 0px rgba(0, 0, 0, 0.62);
 }
@@ -63,7 +63,7 @@ input[type="color"]::-webkit-color-swatch {
   align-items: center;
   justify-content: space-around;
   background-color: rgb(104, 95, 95);
-  padding: 3rem 10rem;
+  padding: 2rem 4rem;
   border-radius: 35px;
   gap: 3rem;
   box-shadow: -1px 1px 14px 0px rgba(0, 0, 0, 0.62);
@@ -73,9 +73,9 @@ input[type="color"]::-webkit-color-swatch {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
   background-color: grey;
-  padding: 4rem;
+  padding: 2rem;
   border-radius: 35px;
 }
 .button {
@@ -90,7 +90,4 @@ input[type="color"]::-webkit-color-swatch {
 }
 .active-btn {
   background-color: rgb(100, 209, 239);
-}
-#file-picker {
-  display: none;
 }
