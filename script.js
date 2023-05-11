@@ -111,9 +111,21 @@ const flowerColors = [
   "#5A6988",
   "#8B9BB4",
 ];
+const snowmanColors = [
+  "#E0A43B",
+  "#000000",
+  "#5F5959",
+  "#FA0A0B",
+  "#B8B7B7",
+  "#DEDEDE",
+  "#A30A0A",
+  "#CE0C0C",
+  "#D39C40",
+  "#E2A438",
+];
 window.onpageshow = () => {
   start();
-  drawSymbol("flower", 0, 0, flowerColors);
+  drawSymbol("snowman", 0, 0, snowmanColors);
 };
 
 function drawSymbol(symbol, x, y, ...color) {
