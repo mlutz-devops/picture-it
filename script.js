@@ -1,14 +1,14 @@
-import { digits, chars, symbols } from "./symbols.js";
+import { symbols, colors } from "./symbols.js";
 const gridSize = 64;
-const middleX = gridSize / 2;
-const middleY = gridSize / 4;
+let date;
 let eraserActive = false;
 let mouseDown = false;
 let currColor = "#000000";
 let currHour = "0";
 let currMin = "0";
-let isTime = false;
+let showData = false;
 const apiKey = "27447ca21d92d7fec85b3deadb996969";
+let timeInterval;
 
 const colorPicker = document.querySelector("#color-picker");
 const btns = document.querySelectorAll(".button");
@@ -21,11 +21,14 @@ const weather = document.querySelector("#weather");
 
 time.addEventListener("click", (e) => {
   e.target.classList.toggle("active-btn");
-  isTime = !isTime;
-  if (isTime) {
-    drawTime();
+  showData = !showData;
+  if (showData) {
+    resetGrid();
+    drawDate();
+    timeInterval = setInterval(drawDate, 1000);
   } else {
-    clearString(`${currHour}:${currMin}`, middleX, middleY);
+    clearInterval(timeInterval);
+    resetGrid();
   }
 });
 clear.addEventListener("click", resetGrid);
@@ -49,7 +52,7 @@ colorPicker.oninput = (e) => {
 };
 weather.addEventListener("click", () => {
   resetGrid();
-  getData("newark");
+  getWeather("newark");
 });
 
 function resetGrid() {
@@ -97,62 +100,36 @@ function changeColor(e) {
 function start() {
   generateGrid(gridSize);
 }
-const leafColors = ["#CC5200", "#F2A069"];
-const moonColors = ["#32302F", "#BABABA", "#777787"];
-const flowerColors = [
-  "#FEAE35",
-  "#FEE861",
-  "#D77643",
-  "#BE4B30",
-  "#3E8948",
-  "#265C42",
-  "#F67622",
-  "#3A4467",
-  "#5A6988",
-  "#8B9BB4",
-];
-const snowmanColors = [
-  "#E0A43B",
-  "#000000",
-  "#5F5959",
-  "#FA0A0B",
-  "#B8B7B7",
-  "#DEDEDE",
-  "#A30A0A",
-  "#CE0C0C",
-  "#D39C40",
-  "#E2A438",
-];
+const weatherColors = ["#c4c4c4", "#8195a6", "#faf323", "#fad726"];
 window.onpageshow = () => {
   start();
-  drawSymbol("snowman", 0, 0, snowmanColors);
+  console.log(getWidthString("wednesday"));
 };
 
-function drawSymbol(symbol, x, y, ...color) {
+function drawSymbol(symbol, x, y, colors) {
   const sym = symbols[symbol];
   for (let i = 0; i < sym.length; i++) {
     for (let j = 0; j < sym[0].length; j++) {
       if (sym[i][j] == 1) {
-        console.log(color[0][0]);
-        grid.children[j + x].children[i + y].style.backgroundColor = color[0][0];
+        grid.children[j + x].children[i + y].style.backgroundColor = colors[0];
       } else if (sym[i][j] == 2) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][1]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[1]}`;
       } else if (sym[i][j] == 3) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][2]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[2]}`;
       } else if (sym[i][j] == 4) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][3]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[3]}`;
       } else if (sym[i][j] == 5) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][4]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[4]}`;
       } else if (sym[i][j] == 6) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][5]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[5]}`;
       } else if (sym[i][j] == 7) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][6]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[6]}`;
       } else if (sym[i][j] == 8) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][7]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[7]}`;
       } else if (sym[i][j] == 9) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][8]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[8]}`;
       } else if (sym[i][j] == 10) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${color[0][9]}`;
+        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[9]}`;
       } else {
         grid.children[j + x].children[i + y].style.backgroundColor = "#f1f1f1";
       }
@@ -179,6 +156,21 @@ function clearSymbol(symbol, x, y) {
     }
   }
 }
+function centerY(symbol) {
+  const height = getHeight(symbol);
+  const mid = Math.floor((32 - height) / 2);
+  return mid;
+}
+function centerX(symbol) {
+  const width = getWidth(symbol);
+  const mid = Math.floor((64 - width) / 2);
+  return mid;
+}
+function centerStringX(str) {
+  const width = getWidthString(str);
+  const mid = Math.floor((64 - width) / 2);
+  return mid;
+}
 
 function getHeight(key) {
   const sym = symbols[key];
@@ -188,33 +180,72 @@ function getWidth(key) {
   const sym = symbols[key];
   return sym[0].length;
 }
-async function getData(city) {
+function getWidthString(str) {
+  let w = 0;
+  for (let i = 0; i < str.length; i++) {
+    w += getWidth(str[i]) + 1;
+  }
+  return w;
+}
+async function getWeather(city) {
   const data = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`
+    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`
   );
   const weather = await data.json();
-  let tempKelvin = Math.floor(weather.main.temp);
-  let temp = Math.floor(((tempKelvin - 273.15) * 9) / 5 + 32).toString();
-  drawSymbol("sun", 10, 7, ["orange"]);
-  drawString(temp + "*", gridSize / 2 + 1, gridSize / 4 - 3, "black");
+  let temp = Math.floor(weather.main.temp);
+  let forcastId = weather.weather[0].id;
+  let forcast;
+  console.log(forcastId);
+  if (forcastId >= 200 && forcastId < 600) {
+    forcast = "raincloud";
+  } else if (forcastId >= 600 && forcastId < 700) {
+    forcast = "snowcloud";
+  } else if (forcastId === 800) {
+    forcast = "sun";
+  } else {
+    forcast = "cloud";
+  }
+  drawSymbol(forcast, 10, centerY(forcast) - 1, weatherColors);
+  drawString(temp + "*", gridSize / 2 + 1, centerY("1"), "black");
 }
-function drawTime() {
-  if (isTime) {
+
+function drawDate() {
+  if (showData) {
+    resetGrid();
     getTime();
-    drawString(`${currHour}:${currMin}`, middleX, middleY, "black");
+    let day = date.toLocaleString("en-US", { weekday: "short" });
+    let month = date.toLocaleString("en-US", { month: "short" });
+    let monthNum = date.getMonth();
+    let season;
+    if (monthNum === 0 || monthNum === 1 || monthNum === 11) {
+      season = "snowman";
+    } else if (monthNum === 2 || monthNum === 3 || monthNum === 4) {
+      season = "flower";
+    } else if (monthNum === 5 || monthNum === 6 || monthNum === 7) {
+      season = "flower";
+    } else {
+      season = "leaf";
+    }
+    drawSymbol(season, centerX(season) - 17, centerY(season), colors[season]);
+    drawString(day.toLowerCase(), centerX(1) + 9, centerY(1) - 10, "black");
+    drawString(month.toLowerCase(), centerX(1) + 1, centerY(1), "black");
+    drawString(date.getDate().toString(), centerX(1) + 21, centerY(1), "black");
+    drawString(
+      `${currHour}:${currMin}`,
+      centerStringX(`${currHour}:${currMin}`) + 14,
+      centerY(1) + 10,
+      "black"
+    );
   }
 }
 function getTime() {
-  let date = new Date();
+  date = new Date();
   currHour = date.getHours();
   currMin = date.getMinutes();
-  if (currHour > 12) {
-    currHour -= 12;
-  }
+  currHour = currHour > 12 ? currHour - 12 : currHour === 0 ? 12 : currHour;
   if (currMin < 10) {
     currMin = "0" + currMin.toString();
   }
   currHour = currHour.toString();
   currMin = currMin.toString();
 }
-setInterval(drawTime, 1000);
