@@ -1,6 +1,7 @@
 import { symbols, colors } from "./symbols.js";
 const gridSize = 64;
 let date;
+let night = false;
 let eraserActive = false;
 let mouseDown = false;
 let currColor = "#000000";
@@ -217,7 +218,9 @@ function drawDate() {
     let month = date.toLocaleString("en-US", { month: "short" });
     let monthNum = date.getMonth();
     let season;
-    if (monthNum === 0 || monthNum === 1 || monthNum === 11) {
+    if (night) {
+      season = "moon";
+    } else if (monthNum === 0 || monthNum === 1 || monthNum === 11) {
       season = "snowman";
     } else if (monthNum === 2 || monthNum === 3 || monthNum === 4) {
       season = "flower";
@@ -242,6 +245,9 @@ function getTime() {
   date = new Date();
   currHour = date.getHours();
   currMin = date.getMinutes();
+  if (currHour > 20 || currHour < 7) {
+    night = true;
+  }
   currHour = currHour > 12 ? currHour - 12 : currHour === 0 ? 12 : currHour;
   if (currMin < 10) {
     currMin = "0" + currMin.toString();
