@@ -225,7 +225,7 @@ function drawDate() {
     } else if (monthNum === 2 || monthNum === 3 || monthNum === 4) {
       season = "flower";
     } else if (monthNum === 5 || monthNum === 6 || monthNum === 7) {
-      season = "flower";
+      season = "summer";
     } else {
       season = "leaf";
     }
