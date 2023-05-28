@@ -56,6 +56,14 @@ weather.addEventListener("click", () => {
   getWeather("newark");
 });
 
+function start() {
+  generateGrid(gridSize);
+  loadGif("./mario.gif", function (gifData) {
+    var pixelArrays = gifToPixelArray(gifData);
+    console.log(pixelArrays);
+  });
+}
+
 function resetGrid() {
   grid.innerHTML = "";
   generateGrid(gridSize);
@@ -98,9 +106,6 @@ function changeColor(e) {
   }
 }
 
-function start() {
-  generateGrid(gridSize);
-}
 const weatherColors = ["#c4c4c4", "#8195a6", "#faf323", "#fad726"];
 window.onpageshow = () => {
   start();
@@ -254,4 +259,53 @@ function getTime() {
   }
   currHour = currHour.toString();
   currMin = currMin.toString();
+}
+
+function gifToPixelArray(gifData) {
+  var gifReader = new GifReader(new Uint8Array(gifData));
+
+  var width = gifReader.width;
+  var height = gifReader.height;
+  var pixelArrays = [];
+
+  for (var i = 0; i < gifReader.numFrames(); i++) {
+    var frameData = gifReader.frameInfo(i);
+    var framePixels = new Uint8Array(gifReader.width * gifReader.height);
+    gifReader.decodeAndBlitFrameRGBA(i, framePixels);
+
+    var pixelArray = [];
+
+    for (var y = 0; y < height; y++) {
+      var row = [];
+      for (var x = 0; x < width; x++) {
+        var index = y * width + x;
+        var pixelOffset = index * 4;
+        var r = framePixels[pixelOffset];
+        var g = framePixels[pixelOffset + 1];
+        var b = framePixels[pixelOffset + 2];
+        var a = framePixels[pixelOffset + 3];
+        row.push([r, g, b, a]);
+      }
+      pixelArray.push(row);
+    }
+
+    pixelArrays.push(pixelArray);
+  }
+
+  return pixelArrays;
+}
+function loadGif(url, callback) {
+  var xhr = new XMLHttpRequest();
+  xhr.open("GET", url, true);
+  xhr.responseType = "arraybuffer";
+
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      callback(xhr.response);
+    } else {
+      console.error("Failed to load GIF file:", xhr.statusText);
+    }
+  };
+
+  xhr.send();
 }
