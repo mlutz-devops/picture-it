@@ -10,28 +10,40 @@ let currMin = "0";
 let showData = false;
 const apiKey = "27447ca21d92d7fec85b3deadb996969";
 let timeInterval;
+let swapInterval;
+let dw = true;
 
 const colorPicker = document.querySelector("#color-picker");
 const btns = document.querySelectorAll(".button");
 const clear = document.querySelector("#clear");
 const penBtn = document.querySelector("#pen");
 const eraser = document.querySelector("#eraser");
-const time = document.querySelector("#time");
+const dateWeather = document.querySelector("#dw");
 const grid = document.getElementById("grid");
-const weather = document.querySelector("#weather");
 
-time.addEventListener("click", (e) => {
+dateWeather.addEventListener("click", (e) => {
   e.target.classList.toggle("active-btn");
   showData = !showData;
   if (showData) {
     resetGrid();
-    drawDate();
-    timeInterval = setInterval(drawDate, 1000);
+    swapInterval = setInterval(() => {
+      resetGrid();
+      dw = !dw;
+    }, 10000);
+    timeInterval = setInterval(drawDateAndWeather, 1000);
   } else {
     clearInterval(timeInterval);
+    clearInterval(swapInterval);
     resetGrid();
   }
 });
+function drawDateAndWeather() {
+  if (dw) {
+    drawDate();
+  } else {
+    getWeather("newark");
+  }
+}
 clear.addEventListener("click", resetGrid);
 eraser.addEventListener("click", () => {
   eraserActive = true;
@@ -51,17 +63,27 @@ document.body.onmouseup = () => {
 colorPicker.oninput = (e) => {
   currColor = e.target.value;
 };
-weather.addEventListener("click", () => {
-  resetGrid();
-  getWeather("newark");
-});
 
 function start() {
   generateGrid(gridSize);
-  loadGif("./mario.gif", function (gifData) {
+  loadGif("./smily.gif", function (gifData) {
     var pixelArrays = gifToPixelArray(gifData);
     console.log(pixelArrays);
+    drawImg(pixelArrays[0], 0, 0);
   });
+}
+function drawImg(arr, x, y) {
+  console.log(arr);
+  for (let i = 0; i < arr.length; i++) {
+    console.log("test");
+    for (let j = 0; j < arr[0].length; j++) {
+      let colors = arr[i][j];
+
+      grid.children[j + x].children[
+        i + y
+      ].style.backgroundColor = `rgb(${colors[0]}, ${colors[1]}, ${colors[2]})`;
+    }
+  }
 }
 
 function resetGrid() {
@@ -116,29 +138,7 @@ function drawSymbol(symbol, x, y, colors) {
   const sym = symbols[symbol];
   for (let i = 0; i < sym.length; i++) {
     for (let j = 0; j < sym[0].length; j++) {
-      if (sym[i][j] == 1) {
-        grid.children[j + x].children[i + y].style.backgroundColor = colors[0];
-      } else if (sym[i][j] == 2) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[1]}`;
-      } else if (sym[i][j] == 3) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[2]}`;
-      } else if (sym[i][j] == 4) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[3]}`;
-      } else if (sym[i][j] == 5) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[4]}`;
-      } else if (sym[i][j] == 6) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[5]}`;
-      } else if (sym[i][j] == 7) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[6]}`;
-      } else if (sym[i][j] == 8) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[7]}`;
-      } else if (sym[i][j] == 9) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[8]}`;
-      } else if (sym[i][j] == 10) {
-        grid.children[j + x].children[i + y].style.backgroundColor = `${colors[9]}`;
-      } else {
-        grid.children[j + x].children[i + y].style.backgroundColor = "#f1f1f1";
-      }
+      grid.children[j + x].children[i + y].style.backgroundColor = colors[sym[i][j] - 1];
     }
   }
 }
@@ -201,7 +201,6 @@ async function getWeather(city) {
   let temp = Math.floor(weather.main.temp);
   let forcastId = weather.weather[0].id;
   let forcast;
-  console.log(forcastId);
   if (forcastId >= 200 && forcastId < 600) {
     forcast = "raincloud";
   } else if (forcastId >= 600 && forcastId < 700) {
@@ -270,7 +269,7 @@ function gifToPixelArray(gifData) {
 
   for (var i = 0; i < gifReader.numFrames(); i++) {
     var frameData = gifReader.frameInfo(i);
-    var framePixels = new Uint8Array(gifReader.width * gifReader.height);
+    var framePixels = new Uint8Array(gifReader.width * gifReader.height * 4); // Update: Multiply by 4 for RGBA data
     gifReader.decodeAndBlitFrameRGBA(i, framePixels);
 
     var pixelArray = [];
