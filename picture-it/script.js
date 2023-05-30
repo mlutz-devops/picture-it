@@ -68,14 +68,11 @@ function start() {
   generateGrid(gridSize);
   loadGif("./smily.gif", function (gifData) {
     var pixelArrays = gifToPixelArray(gifData);
-    console.log(pixelArrays);
-    drawImg(pixelArrays[0], 0, 0);
+    drawFrame(pixelArrays[0], 0, 0);
   });
 }
-function drawImg(arr, x, y) {
-  console.log(arr);
+function drawFrame(arr, x, y) {
   for (let i = 0; i < arr.length; i++) {
-    console.log("test");
     for (let j = 0; j < arr[0].length; j++) {
       let colors = arr[i][j];
 
@@ -85,6 +82,7 @@ function drawImg(arr, x, y) {
     }
   }
 }
+function drawGif(arr, x, y) {}
 
 function resetGrid() {
   grid.innerHTML = "";
@@ -131,7 +129,6 @@ function changeColor(e) {
 const weatherColors = ["#c4c4c4", "#8195a6", "#faf323", "#fad726"];
 window.onpageshow = () => {
   start();
-  console.log(getWidthString("wednesday"));
 };
 
 function drawSymbol(symbol, x, y, colors) {
@@ -269,6 +266,7 @@ function gifToPixelArray(gifData) {
 
   for (var i = 0; i < gifReader.numFrames(); i++) {
     var frameData = gifReader.frameInfo(i);
+    console.log(frameData);
     var framePixels = new Uint8Array(gifReader.width * gifReader.height * 4); // Update: Multiply by 4 for RGBA data
     gifReader.decodeAndBlitFrameRGBA(i, framePixels);
 
