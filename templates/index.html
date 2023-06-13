@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Picture It!</title>
+    <link rel="stylesheet" href="../static/stylesheets/styles.css" />
+    <script src="https://cdn.socket.io/4.4.1/socket.io.js" defer></script>
+    <script src="../static/js/omggif.js" defer></script>
+    <script type="module" src="../static/js/script.js" defer></script>
+  </head>
+  <body>
+    <div class="content">
+      <div class="title">Picture It!</div>
+      <main class="main">
+        <div class="controls">
+          <input type="color" id="color-picker" />
+          <button class="button active-btn" id="pen">Pen</button>
+          <button class="button" id="eraser">Eraser</button>
+          <button class="button" id="clear">Clear</button>
+          <button class="button" id="dw">Date/Weather</button>
+        </div>
+        <div id="grid"></div>
+      </main>
+    </div>
+  </body>
+</html>
