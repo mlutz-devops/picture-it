@@ -98,6 +98,7 @@ function drawGridFromServer(arr) {
 }
 function start() {
   generateGrid(gridSize);
+  getGrid();
 }
 function drawDateAndWeather() {
   if (dw) {
@@ -252,7 +253,7 @@ async function getWeather(city) {
 
 function drawDate() {
   if (showData) {
-    resetGrid();
+    // resetGrid();
     getTime();
     let day = date.toLocaleString("en-US", { weekday: "short" });
     let month = date.toLocaleString("en-US", { month: "short" });

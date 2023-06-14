@@ -7,6 +7,7 @@
   margin: 0;
   padding: 0;
   font-family: "doodle";
+  color: white;
   /* outline: 1px solid red; */
 }
 .content {
@@ -16,8 +17,11 @@
   width: 100vw;
   justify-content: center;
   align-items: center;
-  gap: 5vh;
-  background-image: url("../images/paper-background.avif");
+  /* gap: 5vh; */
+  background-image: url("../images/doodles-bg.jpeg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
 }
 #grid {
   border: 2px solid black;
@@ -44,6 +48,10 @@ input[type="color"]::-webkit-color-swatch {
 }
 .title {
   font-size: 4rem;
+  background-color: rgba(78, 81, 162, 255);
+  padding: 0.75rem 3rem 2rem;
+  border-radius: 10px;
+  margin-top: 20px;
 }
 .square {
   border: 1px solid rgba(0, 0, 0, 0.2);
@@ -64,11 +72,11 @@ input[type="color"]::-webkit-color-swatch {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background-color: rgb(104, 95, 95);
-  padding: 2rem 3rem;
+  /* background-color: rgba(35, 35, 99, 255); */
+  padding: 0.5rem 0.5rem;
   border-radius: 35px;
   gap: 3rem;
-  box-shadow: -1px 1px 14px 0px rgba(0, 0, 0, 0.62);
+  /* box-shadow: -1px 1px 14px 0px rgba(0, 0, 0, 0.62); */
 }
 .controls {
   display: flex;
@@ -76,9 +84,9 @@ input[type="color"]::-webkit-color-swatch {
   justify-content: center;
   align-items: center;
   gap: 1rem;
-  background-color: grey;
+  background-color: rgba(84, 128, 153, 255);
   padding: 1.5rem;
-  border-radius: 35px;
+  border-radius: 15px;
 }
 .button {
   border: 1px solid black;
@@ -87,9 +95,8 @@ input[type="color"]::-webkit-color-swatch {
   font-size: 1.15rem;
   border-radius: 10px;
   padding-bottom: 5px;
-  background-color: #f1f1f1;
+  background-color: rgb(109, 109, 255);
   text-align: center;
-  color: black;
 }
 .active-btn {
   background-color: rgb(100, 209, 239);
