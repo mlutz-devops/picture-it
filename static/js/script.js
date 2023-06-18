@@ -3,7 +3,7 @@ const socket = io.connect("127.0.0.1:80");
 const gridSize = 64;
 let date;
 let night = false;
-let eraserActive = false;
+let mode = "pen";
 let mouseDown = false;
 let currColor = "#000000";
 let currHour = "0";
@@ -23,7 +23,6 @@ const dateWeather = document.querySelector("#dw");
 const grid = document.getElementById("grid");
 
 dateWeather.addEventListener("click", (e) => {
-  e.target.classList.toggle("active-btn");
   showData = !showData;
   if (showData) {
     resetGrid();
@@ -40,22 +39,28 @@ dateWeather.addEventListener("click", (e) => {
 });
 clear.addEventListener("click", resetGrid);
 eraser.addEventListener("click", () => {
-  eraserActive = true;
+  mode = "eraser";
 });
 penBtn.addEventListener("click", () => {
-  eraserActive = false;
+  mode = "pen";
 });
-for (const btn of btns) {
-  btn.addEventListener("click", toggleActive);
-}
 document.body.onmousedown = () => {
   mouseDown = true;
 };
 document.body.onmouseup = () => {
+  updateGrid();
+  mouseDown = false;
+};
+document.body.ontouchstart = () => {
+  mouseDown = true;
+};
+document.body.ontouchend = () => {
+  updateGrid();
   mouseDown = false;
 };
 colorPicker.oninput = (e) => {
   currColor = e.target.value;
+  document.querySelector("#pen path").style.color = e.target.value;
 };
 socket.on("sendGrid", (data) => {
   drawGridFromServer(data);
@@ -135,8 +140,10 @@ function generateGrid(size) {
       tile.className = "square";
       tile.addEventListener("mousedown", changeColor);
       tile.addEventListener("mouseover", changeColor);
-      tile.addEventListener("mousedown", updateGrid);
-      tile.addEventListener("mouseover", updateGrid);
+      // tile.addEventListener("mousedown", updateGrid);
+      // tile.addEventListener("mouseover", updateGrid);
+      tile.addEventListener("touchstart", changeColor);
+      tile.addEventListener("touchmove", changeColor);
 
       gridRow.appendChild(tile);
     }
@@ -145,21 +152,12 @@ function generateGrid(size) {
   }
 }
 
-function toggleActive(e) {
-  const btns = document.querySelectorAll(".button");
-  if (e.target.id === "pen" || e.target.id === "eraser") {
-    for (const btn of btns) {
-      btn.className = "button";
-    }
-    e.target.classList.toggle("active-btn");
-  }
-}
-
 function changeColor(e) {
   if (mouseDown || e.type === "mousedown") {
-    if (eraserActive) {
+    ///////
+    if (mode === "eraser") {
       e.target.style.cssText = "";
-    } else if (e.target.className === "square") {
+    } else if (mode === "pen") {
       e.target.style.cssText = `background-color:${currColor}`;
     }
   }
@@ -168,6 +166,7 @@ function changeColor(e) {
 const weatherColors = ["#c4c4c4", "#8195a6", "#faf323", "#fad726"];
 window.onpageshow = () => {
   start();
+  socket.emit("getGrid");
 };
 
 function drawSymbol(symbol, x, y, colors) {
@@ -274,6 +273,11 @@ function drawDate() {
     drawString(day.toLowerCase(), centerX(1) + 9, centerY(1) - 10, "black");
     drawString(month.toLowerCase(), centerX(1) + 1, centerY(1), "black");
     drawString(date.getDate().toString(), centerX(1) + 21, centerY(1), "black");
+    clearString(
+      `${currHour}:${currMin}`,
+      centerStringX(`${currHour}:${currMin}`) + 14,
+      centerY(1) + 10
+    );
     drawString(
       `${currHour}:${currMin}`,
       centerStringX(`${currHour}:${currMin}`) + 14,

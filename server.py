@@ -8,9 +8,7 @@ grid = []
 
 
 @app.route("/", methods=["GET", "POST"])
-def hello_world():
-    if request.method == "POST":
-        print("hello world")
+def start():
     return render_template("index.html")
 
 
@@ -21,7 +19,13 @@ def connect(sid, env, auth):
 
 @sio.event
 def color(sid, data):
+    global grid
     grid = data
+    sio.emit("sendGrid", grid)
+
+
+@sio.event
+def getGrid(sid):
     sio.emit("sendGrid", grid)
 
 
