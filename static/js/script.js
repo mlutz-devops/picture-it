@@ -74,10 +74,14 @@ function getGrid() {
       const sq = grid.children[j].children[i];
       const styles = window.getComputedStyle(sq);
 
-      const red = parseInt(styles.getPropertyValue("background-color").split(",")[0].split("(")[1]);
-      const green = parseInt(styles.getPropertyValue("background-color").split(",")[1]);
+      const red = parseInt(
+        styles.getPropertyValue("background-color").split(",")[0].split("(")[1],
+      );
+      const green = parseInt(
+        styles.getPropertyValue("background-color").split(",")[1],
+      );
       const blue = parseInt(
-        styles.getPropertyValue("background-color").split(",")[2].split(")")[0]
+        styles.getPropertyValue("background-color").split(",")[2].split(")")[0],
       );
 
       row.push([red, green, blue]);
@@ -140,10 +144,8 @@ function generateGrid(size) {
       tile.className = "square";
       tile.addEventListener("mousedown", changeColor);
       tile.addEventListener("mouseover", changeColor);
-      // tile.addEventListener("mousedown", updateGrid);
-      // tile.addEventListener("mouseover", updateGrid);
-      tile.addEventListener("touchstart", changeColor);
-      tile.addEventListener("touchmove", changeColor);
+      // tile.addEventListener("touchstart", changeColor);
+      // tile.addEventListener("touchmove", changeColor);
 
       gridRow.appendChild(tile);
     }
@@ -153,8 +155,8 @@ function generateGrid(size) {
 }
 
 function changeColor(e) {
+  e.preventDefault();
   if (mouseDown || e.type === "mousedown") {
-    ///////
     if (mode === "eraser") {
       e.target.style.cssText = "";
     } else if (mode === "pen") {
@@ -173,7 +175,8 @@ function drawSymbol(symbol, x, y, colors) {
   const sym = symbols[symbol];
   for (let i = 0; i < sym.length; i++) {
     for (let j = 0; j < sym[0].length; j++) {
-      grid.children[j + x].children[i + y].style.backgroundColor = colors[sym[i][j] - 1];
+      grid.children[j + x].children[i + y].style.backgroundColor =
+        colors[sym[i][j] - 1];
     }
   }
 }
@@ -230,7 +233,7 @@ function getWidthString(str) {
 }
 async function getWeather(city) {
   const data = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`
+    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`,
   );
   const weather = await data.json();
   let temp = Math.floor(weather.main.temp);
@@ -276,13 +279,13 @@ function drawDate() {
     clearString(
       `${currHour}:${currMin}`,
       centerStringX(`${currHour}:${currMin}`) + 14,
-      centerY(1) + 10
+      centerY(1) + 10,
     );
     drawString(
       `${currHour}:${currMin}`,
       centerStringX(`${currHour}:${currMin}`) + 14,
       centerY(1) + 10,
-      "black"
+      "black",
     );
   }
   updateGrid();
@@ -293,6 +296,8 @@ function getTime() {
   currMin = date.getMinutes();
   if (currHour > 20 || currHour < 7) {
     night = true;
+  } else {
+    night = false;
   }
   currHour = currHour > 12 ? currHour - 12 : currHour === 0 ? 12 : currHour;
   if (currMin < 10) {

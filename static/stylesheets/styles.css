@@ -112,6 +112,7 @@ input[type="color"]::-webkit-color-swatch {
 .button svg {
   width: 2.5rem;
   height: auto;
+  flex-shrink: 0;
 }
 .button:hover * {
   cursor: default;
@@ -151,13 +152,21 @@ input[type="color"]::-webkit-color-swatch {
   }
   .controls {
     width: 100vw;
-    height: auto;
+    height: 3.25rem;
     display: flex;
+    top: 0;
+    left: 0;
   }
   .button {
     flex-direction: column;
     align-items: center;
     padding: 0.7rem 0.75rem 0rem 0.75rem;
+    font-size: 0.75rem;
+    max-width: 64px;
+  }
+
+  .button svg {
+    height: 1.5rem;
   }
   .nav-item {
     padding: 0;
@@ -165,5 +174,27 @@ input[type="color"]::-webkit-color-swatch {
   }
   #color-picker {
     margin: 0;
+  }
+  .title {
+    margin-top: 120px;
+  }
+  .main {
+    margin-top: 3.25rem;
+    margin-left: 0;
+  }
+  .controls:hover {
+    height: 9rem;
+    width: 100vw;
+  }
+  .controls #arrow svg {
+    rotate: 90deg;
+  }
+  .controls:hover #arrow svg {
+    width: 2.5rem;
+    rotate: 0deg;
+  }
+  #color-picker {
+    flex-shrink: 0;
+    margin-top: 10px;
   }
 }
