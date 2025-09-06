@@ -1,5 +1,5 @@
 import { symbols, colors } from "./symbols.js";
-const socket = io.connect("127.0.0.1:80");
+const socket = io.connect("localhost:8080");
 const gridSize = 64;
 let date;
 let night = false;

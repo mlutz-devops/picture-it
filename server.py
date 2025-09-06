@@ -21,7 +21,7 @@ def connect(sid, env, auth):
 def color(sid, data):
     global grid
     grid = data
-    sio.emit("sendGrid", grid)
+    sio.emit("sendGrid", grid, skip_sid=sid)
 
 
 @sio.event
