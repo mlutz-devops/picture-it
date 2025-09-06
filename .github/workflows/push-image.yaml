@@ -13,5 +13,5 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: mlutzy/picture-it:latest
+          tags: ${{ vars.DOCKERHUB_USER }}/picture-it:latest
       
