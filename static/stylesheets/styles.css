@@ -42,6 +42,9 @@
   border: none;
   background-color: inherit;
 }
+#dw.active{
+  background-color: var(--hover);
+}
 input[type="color"]::-webkit-color-swatch-wrapper {
   padding: 0;
 }

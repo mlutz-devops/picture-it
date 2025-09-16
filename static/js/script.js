@@ -13,6 +13,7 @@ const apiKey = "27447ca21d92d7fec85b3deadb996969";
 let timeInterval;
 let swapInterval;
 let dw = true;
+let disabled = false;
 
 const colorPicker = document.querySelector("#color-picker");
 const btns = document.querySelectorAll(".button");
@@ -24,6 +25,7 @@ const grid = document.getElementById("grid");
 
 dateWeather.addEventListener("click", (e) => {
   showData = !showData;
+  disabled = !disabled
   if (showData) {
     resetGrid();
     swapInterval = setInterval(() => {
@@ -37,13 +39,17 @@ dateWeather.addEventListener("click", (e) => {
     resetGrid();
   }
 });
+
 clear.addEventListener("click", resetGrid);
+
 eraser.addEventListener("click", () => {
   mode = "eraser";
 });
+
 penBtn.addEventListener("click", () => {
   mode = "pen";
 });
+
 document.body.onmousedown = () => {
   mouseDown = true;
 };
@@ -58,10 +64,12 @@ document.body.ontouchend = () => {
   updateGrid();
   mouseDown = false;
 };
+
 colorPicker.oninput = (e) => {
   currColor = e.target.value;
   document.querySelector("#pen path").style.color = e.target.value;
 };
+
 socket.on("sendGrid", (data) => {
   drawGridFromServer(data);
 });
@@ -90,25 +98,28 @@ function getGrid() {
   }
   return arr;
 }
+
 function updateGrid() {
   const arr = getGrid();
   socket.emit("color", arr);
 }
+
 function drawGridFromServer(arr) {
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < arr[0].length; j++) {
       let colors = arr[i][j];
-
       grid.children[j].children[
         i
       ].style.backgroundColor = `rgb(${colors[0]}, ${colors[1]}, ${colors[2]})`;
     }
   }
 }
+
 function start() {
   generateGrid(gridSize);
   getGrid();
 }
+
 function drawDateAndWeather() {
   if (dw) {
     drawDate();
@@ -116,6 +127,7 @@ function drawDateAndWeather() {
     getWeather("newark");
   }
 }
+
 function drawFrame(arr, x, y) {
   for (let i = 0; i < arr.length; i++) {
     for (let j = 0; j < arr[0].length; j++) {
@@ -127,6 +139,7 @@ function drawFrame(arr, x, y) {
     }
   }
 }
+
 function drawGif(arr, x, y) {}
 
 function resetGrid() {
@@ -156,16 +169,19 @@ function generateGrid(size) {
 
 function changeColor(e) {
   e.preventDefault();
-  if (mouseDown || e.type === "mousedown") {
-    if (mode === "eraser") {
-      e.target.style.cssText = "";
-    } else if (mode === "pen") {
-      e.target.style.cssText = `background-color:${currColor}`;
+  if (!disabled){
+    if (mouseDown || e.type === "mousedown") {
+      if (mode === "eraser") {
+        e.target.style.cssText = "";
+      } else if (mode === "pen") {
+        e.target.style.cssText = `background-color:${currColor}`;
+      }
     }
   }
 }
 
 const weatherColors = ["#c4c4c4", "#8195a6", "#faf323", "#fad726"];
+
 window.onpageshow = () => {
   start();
   socket.emit("getGrid");
@@ -231,6 +247,7 @@ function getWidthString(str) {
   }
   return w;
 }
+
 async function getWeather(city) {
   const data = await fetch(
     `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`,
@@ -290,6 +307,7 @@ function drawDate() {
   }
   updateGrid();
 }
+
 function getTime() {
   date = new Date();
   currHour = date.getHours();
@@ -341,6 +359,7 @@ function gifToPixelArray(gifData) {
 
   return pixelArrays;
 }
+
 function loadGif(url, callback) {
   var xhr = new XMLHttpRequest();
   xhr.open("GET", url, true);
@@ -353,6 +372,10 @@ function loadGif(url, callback) {
       console.error("Failed to load GIF file:", xhr.statusText);
     }
   };
-
   xhr.send();
 }
+
+dateWeather.addEventListener("click", () => {
+  dateWeather.classList.toggle("active")
+})
+
