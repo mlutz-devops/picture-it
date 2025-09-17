@@ -1,5 +1,4 @@
 import { symbols, colors } from "./symbols.js";
-const socket = io.connect("localhost:8080");
 const gridSize = 64;
 let date;
 let night = false;
@@ -22,6 +21,16 @@ const penBtn = document.querySelector("#pen");
 const eraser = document.querySelector("#eraser");
 const dateWeather = document.querySelector("#dw");
 const grid = document.getElementById("grid");
+
+const socket = new WebSocket("wss://ws.michaellutz.org/ws")
+
+socket.addEventListener("message", (event) => {
+  const object = JSON.parse(event.data)
+  console.log(object)
+  if (object.type === "color" && object.grid != null) {
+    drawGridFromServer(object.grid);
+  }
+});
 
 dateWeather.addEventListener("click", (e) => {
   showData = !showData;
@@ -54,15 +63,15 @@ document.body.onmousedown = () => {
   mouseDown = true;
 };
 document.body.onmouseup = () => {
-  updateGrid();
   mouseDown = false;
+  updateGrid();
 };
 document.body.ontouchstart = () => {
   mouseDown = true;
 };
 document.body.ontouchend = () => {
-  updateGrid();
   mouseDown = false;
+  updateGrid();
 };
 
 colorPicker.oninput = (e) => {
@@ -70,9 +79,6 @@ colorPicker.oninput = (e) => {
   document.querySelector("#pen path").style.color = e.target.value;
 };
 
-socket.on("sendGrid", (data) => {
-  drawGridFromServer(data);
-});
 
 function getGrid() {
   const arr = [];
@@ -101,7 +107,10 @@ function getGrid() {
 
 function updateGrid() {
   const arr = getGrid();
-  socket.emit("color", arr);
+  socket.send(JSON.stringify({
+    "type": "color",
+    "grid": arr
+  }));
 }
 
 function drawGridFromServer(arr) {
@@ -140,7 +149,7 @@ function drawFrame(arr, x, y) {
   }
 }
 
-function drawGif(arr, x, y) {}
+function drawGif(arr, x, y) { }
 
 function resetGrid() {
   grid.innerHTML = "";
@@ -169,7 +178,7 @@ function generateGrid(size) {
 
 function changeColor(e) {
   e.preventDefault();
-  if (!disabled){
+  if (!disabled) {
     if (mouseDown || e.type === "mousedown") {
       if (mode === "eraser") {
         e.target.style.cssText = "";
@@ -184,7 +193,13 @@ const weatherColors = ["#c4c4c4", "#8195a6", "#faf323", "#fad726"];
 
 window.onpageshow = () => {
   start();
-  socket.emit("getGrid");
+}
+
+socket.onopen = () => {
+  const msg = {
+    "type": "get_grid"
+  }
+  socket.send(JSON.stringify(msg));
 };
 
 function drawSymbol(symbol, x, y, colors) {
@@ -365,7 +380,7 @@ function loadGif(url, callback) {
   xhr.open("GET", url, true);
   xhr.responseType = "arraybuffer";
 
-  xhr.onload = function () {
+  xhr.onload = function() {
     if (xhr.status === 200) {
       callback(xhr.response);
     } else {
