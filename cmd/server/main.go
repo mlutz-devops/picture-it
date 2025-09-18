@@ -29,7 +29,7 @@ func main() {
 
 				message := map[string]any{
 					"hello": "there",
-					"type":  "color",
+					"type":  "greeting",
 				}
 
 				err := c.WriteJSON(message)
