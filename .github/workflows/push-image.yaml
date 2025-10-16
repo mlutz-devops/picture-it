@@ -2,16 +2,21 @@ name: Push Image
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: login to docker
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: login to ghcr
         uses: docker/login-action@v3
         with:
-          username: ${{ vars.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_TOKEN }}
+
       - name: push to registry
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ${{ vars.DOCKERHUB_USER }}/picture-it:latest
+          tags: ghcr.io/${{ github.repository }}:latest
       
