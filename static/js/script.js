@@ -22,7 +22,7 @@ const eraser = document.querySelector("#eraser");
 const dateWeather = document.querySelector("#dw");
 const grid = document.getElementById("grid");
 
-const socket = new WebSocket("wss://ws.michaellutz.org/ws")
+const socket = new WebSocket("wss://picture-it.michaellutz.org/ws")
 
 socket.addEventListener("message", (event) => {
   const object = JSON.parse(event.data)
