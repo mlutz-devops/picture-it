@@ -20,5 +20,5 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:latest
-            ghcr.io/${{ github.repository }}:v0.1.0
+            ghcr.io/${{ github.repository }}:v0.1.1
       
