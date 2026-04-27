@@ -1,12 +1,16 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
 	"github.com/gofiber/contrib/websocket"
 	"michaellutz.org/picture-it/internal/config"
+	"michaellutz.org/picture-it/internal/redisclient"
+	"michaellutz.org/picture-it/internal/routes"
 	"michaellutz.org/picture-it/internal/server"
 	"michaellutz.org/picture-it/internal/state"
 )
@@ -18,7 +22,23 @@ func main() {
 		panic(err)
 	}
 
+	redisClient, err := redisclient.NewClient(config)
+	if err != nil {
+		panic(err)
+	}
+	defer redisClient.Close()
+	state.RedisClient = redisClient
+
+	pubsubCtx, cancelPubsub := context.WithCancel(context.Background())
+	defer cancelPubsub()
+	if err := routes.StartRedisGridSubscriber(pubsubCtx); err != nil {
+		log.Printf("failed to start redis grid subscriber: %v", err)
+	}
+
 	shutdown, err := server.RunApp(config)
+	if err != nil {
+		panic(err)
+	}
 	defer shutdown()
 
 	go func() {

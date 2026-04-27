@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -61,6 +62,12 @@ func SetWebsocketRoutes(router fiber.Router) {
 	}))
 }
 
+func StartRedisGridSubscriber(ctx context.Context) error {
+	return state.SubscribeToGridUpdates(ctx, func(grid [][][]int) {
+		emitGrid(grid)
+	})
+}
+
 func handleMessage(conn *websocket.Conn, msg []byte) error {
 	var message wsMessage
 	err := json.Unmarshal(msg, &message)
@@ -70,20 +77,29 @@ func handleMessage(conn *websocket.Conn, msg []byte) error {
 	log.Println("Message type recieved: ", message.Type)
 	switch message.Type {
 	case "get_grid":
+		grid, err := state.GetGridFromRedis()
+		if err != nil {
+			log.Println("Error loading grid from redis:", err)
+		}
 
-		state.GridMutex.Lock()
 		message := wsMessage{
 			Type: "color",
-			Grid: state.Grid,
+			Grid: grid,
 		}
-		state.GridMutex.Unlock()
-
 		conn.WriteJSON(message)
 	case "color":
-		state.GridMutex.Lock()
-		state.Grid = message.Grid
-		emitGrid(state.Grid)
-		state.GridMutex.Unlock()
+		if err := state.PersistGridToRedis(message.Grid); err != nil {
+			log.Println("Error persisting grid to redis:", err)
+		}
+
+		if state.RedisClient != nil {
+			if err := state.PublishGridUpdate(message.Grid); err != nil {
+				log.Println("Error publishing grid update to redis:", err)
+				emitGrid(message.Grid)
+			}
+		} else {
+			emitGrid(message.Grid)
+		}
 	}
 
 	return nil

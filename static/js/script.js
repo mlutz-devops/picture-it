@@ -22,7 +22,8 @@ const eraser = document.querySelector("#eraser");
 const dateWeather = document.querySelector("#dw");
 const grid = document.getElementById("grid");
 
-const socket = new WebSocket("wss://picture-it.michaellutz.org/ws")
+const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws`);
 
 socket.addEventListener("message", (event) => {
   const object = JSON.parse(event.data)
@@ -393,4 +394,3 @@ function loadGif(url, callback) {
 dateWeather.addEventListener("click", () => {
   dateWeather.classList.toggle("active")
 })
-
