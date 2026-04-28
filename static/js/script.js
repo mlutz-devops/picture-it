@@ -27,15 +27,28 @@ const socket = new WebSocket(`${wsProtocol}//${window.location.host}/ws`);
 
 socket.addEventListener("message", (event) => {
   const object = JSON.parse(event.data)
-  console.log(object)
   if (object.type === "color" && object.grid != null) {
     drawGridFromServer(object.grid);
   }
+
+  if (object.enabled != null) {
+    applyDateWeatherState(object.enabled);
+  }
 });
 
-dateWeather.addEventListener("click", (e) => {
-  showData = !showData;
-  disabled = !disabled
+dateWeather.addEventListener("click", () => {
+  const nextState = !showData;
+  socket.send(JSON.stringify({
+    "type": "dw_toggle",
+    "enabled": nextState,
+  }));
+});
+
+function applyDateWeatherState(isEnabled) {
+  showData = isEnabled;
+  disabled = isEnabled;
+  dateWeather.classList.toggle("active", isEnabled);
+
   if (showData) {
     resetGrid();
     swapInterval = setInterval(() => {
@@ -46,9 +59,11 @@ dateWeather.addEventListener("click", (e) => {
   } else {
     clearInterval(timeInterval);
     clearInterval(swapInterval);
+    swapInterval = null;
+    timeInterval = null;
     resetGrid();
   }
-});
+}
 
 clear.addEventListener("click", resetGrid);
 
@@ -390,7 +405,3 @@ function loadGif(url, callback) {
   };
   xhr.send();
 }
-
-dateWeather.addEventListener("click", () => {
-  dateWeather.classList.toggle("active")
-})

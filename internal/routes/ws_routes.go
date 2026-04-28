@@ -12,9 +12,10 @@ import (
 )
 
 type wsMessage struct {
-	Type string    `json:"type"`
-	Data any       `json:"data"`
-	Grid [][][]int `json:"grid"`
+	Type    string    `json:"type"`
+	Data    any       `json:"data"`
+	Grid    [][][]int `json:"grid"`
+	Enabled *bool     `json:"enabled,omitempty"`
 }
 
 func SetWebsocketRoutes(router fiber.Router) {
@@ -63,8 +64,14 @@ func SetWebsocketRoutes(router fiber.Router) {
 }
 
 func StartRedisGridSubscriber(ctx context.Context) error {
-	return state.SubscribeToGridUpdates(ctx, func(grid [][][]int) {
+	if err := state.SubscribeToGridUpdates(ctx, func(grid [][][]int) {
 		emitGrid(grid)
+	}); err != nil {
+		return err
+	}
+
+	return state.SubscribeToDateWeatherStateUpdates(ctx, func(enabled bool) {
+		emitDateWeatherState(enabled)
 	})
 }
 
@@ -81,10 +88,15 @@ func handleMessage(conn *websocket.Conn, msg []byte) error {
 		if err != nil {
 			log.Println("Error loading grid from redis:", err)
 		}
+		enabled, err := state.GetDateWeatherStateFromRedis()
+		if err != nil {
+			log.Println("Error loading date/weather state from redis:", err)
+		}
 
 		message := wsMessage{
-			Type: "color",
-			Grid: grid,
+			Type:    "color",
+			Grid:    grid,
+			Enabled: &enabled,
 		}
 		conn.WriteJSON(message)
 	case "color":
@@ -100,9 +112,45 @@ func handleMessage(conn *websocket.Conn, msg []byte) error {
 		} else {
 			emitGrid(message.Grid)
 		}
+	case "dw_toggle":
+		enabled := message.Enabled != nil && *message.Enabled
+
+		if err := state.PersistDateWeatherStateToRedis(enabled); err != nil {
+			log.Println("Error persisting date/weather state to redis:", err)
+		}
+
+		if state.RedisClient != nil {
+			if err := state.PublishDateWeatherStateUpdate(enabled); err != nil {
+				log.Println("Error publishing date/weather state to redis:", err)
+				emitDateWeatherState(enabled)
+			}
+		} else {
+			emitDateWeatherState(enabled)
+		}
 	}
 
 	return nil
+}
+
+func emitDateWeatherState(enabled bool) {
+	state.MP.Range(func(key, value any) bool {
+		c := key.(*websocket.Conn)
+
+		message := wsMessage{
+			Type:    "dw_toggle",
+			Data:    nil,
+			Enabled: &enabled,
+		}
+		j, _ := json.Marshal(message)
+		err := c.WriteMessage(websocket.TextMessage, j)
+		if err != nil {
+			state.MP.Delete(c)
+			c.Close()
+			log.Println("Connection closed with error: ", err)
+		}
+
+		return true
+	})
 }
 
 func emitGrid(grid [][][]int) {
