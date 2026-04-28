@@ -10,8 +10,7 @@ let currMin = "0";
 let showData = false;
 const apiKey = "27447ca21d92d7fec85b3deadb996969";
 let timeInterval;
-let swapInterval;
-let dw = true;
+let lastDwMode = null;
 let disabled = false;
 
 const colorPicker = document.querySelector("#color-picker");
@@ -45,27 +44,32 @@ dateWeather.addEventListener("click", () => {
 });
 
 function applyDateWeatherState(isEnabled) {
+  if (showData === isEnabled) {
+    return;
+  }
+
+  clearInterval(timeInterval);
+  timeInterval = null;
+  lastDwMode = null;
+
   showData = isEnabled;
   disabled = isEnabled;
   dateWeather.classList.toggle("active", isEnabled);
 
   if (showData) {
-    resetGrid();
-    swapInterval = setInterval(() => {
-      resetGrid();
-      dw = !dw;
-    }, 10000);
+    drawDateAndWeather();
     timeInterval = setInterval(drawDateAndWeather, 1000);
   } else {
-    clearInterval(timeInterval);
-    clearInterval(swapInterval);
-    swapInterval = null;
-    timeInterval = null;
     resetGrid();
   }
 }
 
-clear.addEventListener("click", resetGrid);
+clear.addEventListener("click", () => {
+  if (showData) {
+    return;
+  }
+  resetGrid();
+});
 
 eraser.addEventListener("click", () => {
   mode = "eraser";
@@ -122,6 +126,9 @@ function getGrid() {
 }
 
 function updateGrid() {
+  if (showData) {
+    return;
+  }
   const arr = getGrid();
   socket.send(JSON.stringify({
     "type": "color",
@@ -146,7 +153,17 @@ function start() {
 }
 
 function drawDateAndWeather() {
-  if (dw) {
+  if (!showData) {
+    return;
+  }
+
+  const shouldDrawDate = Math.floor(Date.now() / 10000) % 2 === 0;
+  if (lastDwMode !== shouldDrawDate) {
+    resetGrid();
+    lastDwMode = shouldDrawDate;
+  }
+
+  if (shouldDrawDate) {
     drawDate();
   } else {
     getWeather("newark");
